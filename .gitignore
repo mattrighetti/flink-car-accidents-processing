@@ -1,0 +1,16 @@
+/flink-car-accidents-processing.iml
+/.idea/
+/target/
+/src/main/java/it/polimi/middleware/flink/tutorial/batch/bank/
+/src/main/java/it/polimi/middleware/flink/tutorial/batch/iterative/
+/src/main/java/it/polimi/middleware/flink/tutorial/batch/wordcount/
+/src/main/java/it/polimi/middleware/flink/tutorial/streaming/
+/files/bank/withdrawals.csv
+/files/wordcount/text.txt
+/files/sumlines/text.txt
+/files/reachablenodes/nodes.txt
+/files/gasstations/nodes.txt
+/files/gasstations/gas_stations.txt
+/files/bank/deposits.csv
+/tutorial.iml
+/files/bank/
