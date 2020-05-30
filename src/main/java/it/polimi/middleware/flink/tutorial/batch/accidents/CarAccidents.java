@@ -5,13 +5,15 @@ import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.tuple.Tuple1;
-import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.api.java.utils.ParameterTool;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class CarAccidents {
 
@@ -27,8 +29,12 @@ public class CarAccidents {
                 AccidentFiled.NUMBER_OF_PERSONS_KILLED
         );
 
+        System.out.println("Mask: " + firstQueryFields);
+
         final DataSet<Tuple5<String, Integer, Integer, Integer, Integer>> lethalAccidentsData = env
                 .readCsvFile(data)
+                .ignoreFirstLine()
+                .ignoreInvalidLines()
                 .includeFields(firstQueryFields)
                 .types(
                         String.class,
@@ -38,32 +44,16 @@ public class CarAccidents {
                         Integer.class
                 );
 
-        // Number of Dates in entire dataset
-        final DataSet<Date> accidentsDates = lethalAccidentsData
-                .map(new DateParser());
-
         // Lethal accidents
         final DataSet<Date> lethalAccidentsDates = lethalAccidentsData
                 .filter(new LethalAccidents())
                 .map(new DateParser());
 
-        // Cross operation to get an instance of type -> | min_date | max_date |
-        final DataSet<Tuple2<Date, Date>> minMaxDates = accidentsDates
-                .cross(lethalAccidentsDates)
+        lethalAccidentsDates
+                .map(new DateToWeekNumber())
                 .groupBy(0, 1)
-                .min(0)
-                .max(1);
-
-        minMaxDates.print();
-
-        // Number of total weeks
-        final DataSet<Long> numOfWeeks = minMaxDates
-                .map(new MillisecondsSince1970())
-                .map(i -> {
-                    long millisecondsWindow = i.f1 - i.f0;
-                    long millisecondsInWeek = (long) 6.048e8;
-                    return millisecondsWindow / millisecondsInWeek;
-                });
+                .sum(2)
+                .print();
     }
 
     public static void secondQuery(ExecutionEnvironment environment, String data) throws Exception {
@@ -104,16 +94,6 @@ public class CarAccidents {
     }
 
     /**
-     * Function that transforms Date into milliseconds from 1970
-     */
-    public static class MillisecondsSince1970 implements MapFunction<Tuple2<Date, Date>, Tuple2<Long, Long>> {
-        @Override
-        public Tuple2<Long, Long> map(Tuple2<Date, Date> in) throws Exception {
-            return new Tuple2<>(in.f0.getTime(), in.f1.getTime());
-        }
-    }
-
-    /**
      * Function that filters only lethal accidents
      */
     public static class LethalAccidents implements FilterFunction<Tuple5<String, Integer, Integer, Integer, Integer>> {
@@ -122,5 +102,17 @@ public class CarAccidents {
             return in.f1 != 0 || in.f2 != 0 || in.f3 != 0 || in.f4 != 0;
         }
     }
+
+    public static class DateToWeekNumber implements MapFunction<Date, Tuple3<Integer, Integer, Integer>> {
+        @Override
+        public Tuple3<Integer, Integer, Integer> map(Date date) {
+            Calendar calendar = new GregorianCalendar();
+            calendar.setTime(date);
+            int year = calendar.get(Calendar.YEAR);
+            int numberOfWeek = calendar.get(Calendar.WEEK_OF_YEAR);
+            return new Tuple3<>(year, numberOfWeek, 1);
+        }
+    }
+
 
 }
