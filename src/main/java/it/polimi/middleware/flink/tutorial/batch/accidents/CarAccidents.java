@@ -2,11 +2,11 @@ package it.polimi.middleware.flink.tutorial.batch.accidents;
 
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.functions.ReduceFunction;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
-import org.apache.flink.api.java.tuple.Tuple1;
-import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.flink.api.java.tuple.Tuple5;
+import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.api.java.utils.ParameterTool;
 
 import java.text.ParseException;
@@ -28,8 +28,6 @@ public class CarAccidents {
                 AccidentFiled.NUMBER_OF_PEDESTRIANS_KILLED,
                 AccidentFiled.NUMBER_OF_PERSONS_KILLED
         );
-
-        System.out.println("Mask: " + firstQueryFields);
 
         final DataSet<Tuple5<String, Integer, Integer, Integer, Integer>> lethalAccidentsData = env
                 .readCsvFile(data)
@@ -56,7 +54,87 @@ public class CarAccidents {
                 .print();
     }
 
-    public static void secondQuery(ExecutionEnvironment environment, String data) throws Exception {
+    public static void secondQuery(ExecutionEnvironment env, String data) throws Exception {
+        final String contributingFactorFields = AccidentFiled.getFields(
+                AccidentFiled.NUMBER_OF_CYCLIST_KILLED,
+                AccidentFiled.NUMBER_OF_MOTORIST_KILLED,
+                AccidentFiled.NUMBER_OF_PEDESTRIANS_KILLED,
+                AccidentFiled.NUMBER_OF_PERSONS_KILLED,
+                AccidentFiled.CONTRIBUTING_FACTOR_VEHICLE_1,
+                AccidentFiled.CONTRIBUTING_FACTOR_VEHICLE_2,
+                AccidentFiled.CONTRIBUTING_FACTOR_VEHICLE_3,
+                AccidentFiled.CONTRIBUTING_FACTOR_VEHICLE_4,
+                AccidentFiled.CONTRIBUTING_FACTOR_VEHICLE_5
+        );
+
+        final DataSet<Tuple9<Integer, Integer, Integer, Integer, String, String, String, String, String>> contributingFactors = env
+                .readCsvFile(data)
+                .ignoreFirstLine()
+                .ignoreInvalidLines()
+                .includeFields(contributingFactorFields)
+                .types(
+                        Integer.class,
+                        Integer.class,
+                        Integer.class,
+                        Integer.class,
+                        String.class,
+                        String.class,
+                        String.class,
+                        String.class,
+                        String.class
+                );
+
+        final DataSet<Tuple3<String, Integer, Integer>> contributingFactor1 = contributingFactors
+                .map(tuple -> {
+                    String contributingFactorName = tuple.f4;
+                    int isLethal = (tuple.f0 != 0 || tuple.f1 != 0 || tuple.f2 != 0 || tuple.f3 != 0) ? 1 : 0;
+                    return Tuple3.of(contributingFactorName, isLethal, 1);
+                })
+                .returns(Types.TUPLE(Types.STRING, Types.INT, Types.INT));
+
+        final DataSet<Tuple3<String, Integer, Integer>> contributingFactor2 = contributingFactors
+                .map(tuple -> {
+                    String contributingFactorName = tuple.f5;
+                    int isLethal = (tuple.f0 != 0 || tuple.f1 != 0 || tuple.f2 != 0 || tuple.f3 != 0) ? 1 : 0;
+                    return Tuple3.of(contributingFactorName, isLethal, 1);
+                })
+                .returns(Types.TUPLE(Types.STRING, Types.INT, Types.INT));
+
+        final DataSet<Tuple3<String, Integer, Integer>> contributingFactor3 = contributingFactors
+                .map(tuple -> {
+                    String contributingFactorName = tuple.f6;
+                    int isLethal = (tuple.f0 != 0 || tuple.f1 != 0 || tuple.f2 != 0 || tuple.f3 != 0) ? 1 : 0;
+                    return Tuple3.of(contributingFactorName, isLethal, 1);
+                })
+                .returns(Types.TUPLE(Types.STRING, Types.INT, Types.INT));
+
+        final DataSet<Tuple3<String, Integer, Integer>> contributingFactor4 = contributingFactors
+                .map(tuple -> {
+                    String contributingFactorName = tuple.f7;
+                    int isLethal = (tuple.f0 != 0 || tuple.f1 != 0 || tuple.f2 != 0 || tuple.f3 != 0) ? 1 : 0;
+                    return Tuple3.of(contributingFactorName, isLethal, 1);
+                })
+                .returns(Types.TUPLE(Types.STRING, Types.INT, Types.INT));
+
+        final DataSet<Tuple3<String, Integer, Integer>> contributingFactor5 = contributingFactors
+                .map(tuple -> {
+                    String contributingFactorName = tuple.f8;
+                    int isLethal = (tuple.f0 != 0 || tuple.f1 != 0 || tuple.f2 != 0 || tuple.f3 != 0) ? 1 : 0;
+                    return Tuple3.of(contributingFactorName, isLethal, 1);
+                })
+                .returns(Types.TUPLE(Types.STRING, Types.INT, Types.INT));
+
+        final DataSet<Tuple3<String, Integer, Integer>> groupedContributingFactors = contributingFactor1
+                .union(contributingFactor2)
+                .union(contributingFactor3)
+                .union(contributingFactor4)
+                .union(contributingFactor5);
+
+        groupedContributingFactors
+            .groupBy(0)
+            .reduce(new DoubleFieldSum())
+            .map(new LethalPercentage())
+            .print();
 
     }
 
@@ -70,10 +148,32 @@ public class CarAccidents {
 
         final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
 
-        firstQuery(env, data);
+        secondQuery(env, data);
     }
 
+
     // --- Functions ---
+
+    /**
+     * Function that sums two fields simultaneously with a groupBy
+     */
+    public static class DoubleFieldSum implements ReduceFunction<Tuple3<String, Integer, Integer>> {
+        @Override
+        public Tuple3<String, Integer, Integer>
+        reduce(Tuple3<String, Integer, Integer> t0, Tuple3<String, Integer, Integer> t1) throws Exception {
+            return Tuple3.of(t0.f0, t0.f1 + t1.f1, t0.f2 + t1.f2);
+        }
+    }
+
+    public static class LethalPercentage implements MapFunction<Tuple3<String, Integer, Integer>, Tuple3<String, Integer, String>> {
+        @Override
+        public Tuple3<String, Integer, String>
+        map(Tuple3<String, Integer, Integer> in) throws Exception {
+            float percentage = (float) (((float) in.f1) / ((float) in.f2) * 100.0);
+            String percentageString = String.format("%.2f%%", percentage);
+            return Tuple3.of(in.f0, in.f2, percentageString);
+        }
+    }
 
     /**
      * Function that parses String into Date
@@ -113,6 +213,4 @@ public class CarAccidents {
             return new Tuple3<>(year, numberOfWeek, 1);
         }
     }
-
-
 }
