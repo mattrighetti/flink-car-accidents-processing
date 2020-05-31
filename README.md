@@ -1,4 +1,9 @@
-# Processing of car accidents data
+# Car accidents data processing in Apache Flink
+
+<p align="center">
+    <img src="flink.png" height="200px">
+    <img src="nypd.png" height="200px">
+</p>
 
 #### The goal of this project is to infer qualitative data regarding the car accidents in New York City.
 
@@ -10,8 +15,13 @@ Extract the following information:
       that contributing factor and what percentage of these accidents were also lethal.
 - Number of accidents and average number of lethal accidents per week per borough.
   - I.e., for each borough, we want to know how many accidents there were in that borough each week, as well as the average number of lethal accidents that the borough had per week.
+
+## How to compile this program
+By executing these commands a **target** folder will be generated in the project's directory that's going to contained the generated **.jar** executables
+1. `mvn clean install`
+2. `mvn package`
   
 ## How to run this program
 
 1. Fire up Flink
-2. run `flink run <generated_jar> --nypd_data_file <path_to_NYPD_csv>`
+2. Run `flink run <jar> --nypd_data_file <path_to_NYPD_csv>`
