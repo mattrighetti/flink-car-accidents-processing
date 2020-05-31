@@ -10,3 +10,8 @@ Extract the following information:
       that contributing factor and what percentage of these accidents were also lethal.
 - Number of accidents and average number of lethal accidents per week per borough.
   - I.e., for each borough, we want to know how many accidents there were in that borough each week, as well as the average number of lethal accidents that the borough had per week.
+  
+## How to run this program
+
+1. Fire up Flink
+2. run `flink run <generated_jar> --nypd_data_file <path_to_NYPD_csv>`
