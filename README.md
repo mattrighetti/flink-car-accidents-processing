@@ -14,9 +14,9 @@
 |`DATE`|`String`|
 |`TIME`|`String`|
 |`BOROUGH`|`String`|
-|`ZIP CODE`|`String`|
-|`LATITUDE`|`String`|
-|`LONGITUDE`|`String`|
+|`ZIP CODE`|`Integer`|
+|`LATITUDE`|`Float`|
+|`LONGITUDE`|`Float`|
 |`LOCATION`|`String`|
 |`ON STREET NAME`|`String`|
 |`CROSS STREET NAME`|`String`|
