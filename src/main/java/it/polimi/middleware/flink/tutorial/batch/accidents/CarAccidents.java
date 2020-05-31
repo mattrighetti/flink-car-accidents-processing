@@ -231,10 +231,24 @@ public class CarAccidents {
     public static void main(String[] args) throws Exception {
         final ParameterTool params = ParameterTool.fromArgs(args);
         final String data = params.get("nypd_data_file", "files/car-accidents/NYPD_Motor_Vehicle_Collisions.csv");
+        final int query = params.getInt("query", 1);
 
         final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
-
-        thirdQuery(env, data);
+        
+        switch (query) {
+            case 1:
+                firstQuery(env, data);
+                break;
+            case 2:
+                secondQuery(env, data);
+                break;
+            case 3:
+                thirdQuery(env, data);
+                break;
+            default:
+                System.out.println("You have to enter a valid --query param (1, 2, 3)");
+                break;
+        }
     }
 
 
