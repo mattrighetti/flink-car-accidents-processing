@@ -8,7 +8,6 @@ import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.api.java.utils.ParameterTool;
-import scala.Int;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -22,12 +21,12 @@ public class CarAccidents {
     // Number of lethal accidents per week throughout the entire dataset
     public static void firstQuery(ExecutionEnvironment env, String data) throws Exception {
 
-        final String firstQueryFields = AccidentFiled.getFields(
-                AccidentFiled.DATE,
-                AccidentFiled.NUMBER_OF_CYCLIST_KILLED,
-                AccidentFiled.NUMBER_OF_MOTORIST_KILLED,
-                AccidentFiled.NUMBER_OF_PEDESTRIANS_KILLED,
-                AccidentFiled.NUMBER_OF_PERSONS_KILLED
+        final String firstQueryFields = AccidentField.getFields(
+                AccidentField.DATE,
+                AccidentField.NUMBER_OF_CYCLIST_KILLED,
+                AccidentField.NUMBER_OF_MOTORIST_KILLED,
+                AccidentField.NUMBER_OF_PEDESTRIANS_KILLED,
+                AccidentField.NUMBER_OF_PERSONS_KILLED
         );
 
         final DataSet<Tuple5<String, Integer, Integer, Integer, Integer>> lethalAccidentsData = env
@@ -56,16 +55,16 @@ public class CarAccidents {
     }
 
     public static void secondQuery(ExecutionEnvironment env, String data) throws Exception {
-        final String contributingFactorFields = AccidentFiled.getFields(
-                AccidentFiled.NUMBER_OF_CYCLIST_KILLED,
-                AccidentFiled.NUMBER_OF_MOTORIST_KILLED,
-                AccidentFiled.NUMBER_OF_PEDESTRIANS_KILLED,
-                AccidentFiled.NUMBER_OF_PERSONS_KILLED,
-                AccidentFiled.CONTRIBUTING_FACTOR_VEHICLE_1,
-                AccidentFiled.CONTRIBUTING_FACTOR_VEHICLE_2,
-                AccidentFiled.CONTRIBUTING_FACTOR_VEHICLE_3,
-                AccidentFiled.CONTRIBUTING_FACTOR_VEHICLE_4,
-                AccidentFiled.CONTRIBUTING_FACTOR_VEHICLE_5
+        final String contributingFactorFields = AccidentField.getFields(
+                AccidentField.NUMBER_OF_CYCLIST_KILLED,
+                AccidentField.NUMBER_OF_MOTORIST_KILLED,
+                AccidentField.NUMBER_OF_PEDESTRIANS_KILLED,
+                AccidentField.NUMBER_OF_PERSONS_KILLED,
+                AccidentField.CONTRIBUTING_FACTOR_VEHICLE_1,
+                AccidentField.CONTRIBUTING_FACTOR_VEHICLE_2,
+                AccidentField.CONTRIBUTING_FACTOR_VEHICLE_3,
+                AccidentField.CONTRIBUTING_FACTOR_VEHICLE_4,
+                AccidentField.CONTRIBUTING_FACTOR_VEHICLE_5
         );
 
         final DataSet<Tuple9<Integer, Integer, Integer, Integer, String, String, String, String, String>> contributingFactors = env
@@ -149,13 +148,13 @@ public class CarAccidents {
 
     public static void thirdQuery(ExecutionEnvironment env, String data) throws Exception {
 
-        final String thirdQueryFields = AccidentFiled.getFields(
-                AccidentFiled.DATE,
-                AccidentFiled.BOROUGH,
-                AccidentFiled.NUMBER_OF_CYCLIST_KILLED,
-                AccidentFiled.NUMBER_OF_MOTORIST_KILLED,
-                AccidentFiled.NUMBER_OF_PEDESTRIANS_KILLED,
-                AccidentFiled.NUMBER_OF_PERSONS_KILLED
+        final String thirdQueryFields = AccidentField.getFields(
+                AccidentField.DATE,
+                AccidentField.BOROUGH,
+                AccidentField.NUMBER_OF_CYCLIST_KILLED,
+                AccidentField.NUMBER_OF_MOTORIST_KILLED,
+                AccidentField.NUMBER_OF_PEDESTRIANS_KILLED,
+                AccidentField.NUMBER_OF_PERSONS_KILLED
         );
 
         final DataSet<Tuple6<String, String, Integer, Integer, Integer, Integer>> lethalAccidentsDateAndBorough = env
