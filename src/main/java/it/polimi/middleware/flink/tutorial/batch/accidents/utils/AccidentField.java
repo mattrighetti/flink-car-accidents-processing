@@ -1,4 +1,4 @@
-package it.polimi.middleware.flink.tutorial.batch.accidents;
+package it.polimi.middleware.flink.tutorial.batch.accidents.utils;
 
 /**
  * Utility enum used to generate the mask needed to Flink
