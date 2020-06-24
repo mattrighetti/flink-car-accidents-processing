@@ -64,11 +64,36 @@ public class ThirdQuery extends Query {
                 })
                 .returns(Types.TUPLE(Types.STRING, Types.INT, Types.INT, Types.INT, Types.INT));
 
-        boroughNumberOfAccidentsPerWeek
+        final DataSet<Tuple4<String, Integer, Integer, Integer>> boroughNumberOfLethalAccidentsPerWeek = boroughNumberOfAccidentsPerWeek
                 .filter(tuple -> !tuple.f0.isEmpty())
                 .groupBy(0, 1, 2)
                 .reduce(new Functions.DoubleSum())
-                .project(0, 1, 2, 4)
+                .project(0, 1, 2, 4);
+
+        boroughNumberOfLethalAccidentsPerWeek.print();
+
+        final DataSet<Tuple5<String, Integer, Integer, Integer, Integer>> averageLethalAccidentsPerWeekPerBorough = boroughNumberOfLethalAccidentsPerWeek
+                .filter(tuple -> !tuple.f0.isEmpty())
+                .map(tuple -> Tuple5.of(tuple.f0, tuple.f1, tuple.f2, tuple.f3, 1))
+                .returns(Types.TUPLE(Types.STRING, Types.INT, Types.INT, Types.INT, Types.INT)); // used later to count how many weeks we have for each borough
+
+        //averageLethalAccidentsPerWeekPerBorough.print();
+
+        averageLethalAccidentsPerWeekPerBorough
+                .groupBy(0) // group by borough
+                .reduce(new Functions.DoubleSum()) // get the total number of rows and total number of lethal accidents.map(tuple -> {
+                .map(tuple -> {
+                    // tuple.f3 = total accidents in that borough that week
+                    // tuple.f4 = number of lethal accidents in that borough that week
+                    float avg;
+                    try {
+                        avg = (float) tuple.f3 / tuple.f4; // lethal accidents over number of weeks for which we have data
+                    } catch (ArithmeticException e) {
+                        avg = 0;
+                    }
+                    return Tuple4.of(tuple.f0, tuple.f3, tuple.f4, avg); // borough, total lethal accidents, number of weeks, average
+                })
+                .returns(Types.TUPLE(Types.STRING, Types.INT, Types.INT, Types.FLOAT))
                 .print();
 
         // Average of number of lethal accidents per week
