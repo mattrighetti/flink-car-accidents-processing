@@ -50,7 +50,9 @@ public class FirstQuery extends Query {
 
         lethalAccidentsDates
                 .map(new Functions.DateToWeekNumber())
+                // group by year and week number
                 .groupBy(0, 1)
+                // count number of rows
                 .sum(2)
                 .print();
     }

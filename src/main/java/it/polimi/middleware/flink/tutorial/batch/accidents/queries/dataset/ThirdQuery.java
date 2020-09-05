@@ -48,6 +48,7 @@ public class ThirdQuery extends Query {
         final DataSet<Tuple4<String, String, Integer, Integer>> boroughNumberOfAccidents = lethalAccidentsDateAndBorough
                 .map(tuple -> {
                     int isLethal = (tuple.f2 != 0 || tuple.f3 != 0 || tuple.f4 != 0 || tuple.f5 != 0) ? 1 : 0;
+                    // borough, date, 1, isLethal
                     return Tuple4.of(tuple.f1, tuple.f0, 1, isLethal);
                 })
                 .returns(Types.TUPLE(Types.STRING, Types.STRING, Types.INT, Types.INT));
@@ -60,31 +61,35 @@ public class ThirdQuery extends Query {
                     int year = calendar.get(Calendar.YEAR);
                     int numberOfWeek = calendar.get(Calendar.WEEK_OF_YEAR);
 
+                    // borough, year, week number, 1, isLethal
                     return Tuple5.of(tuple.f0, year, numberOfWeek, tuple.f2, tuple.f3);
                 })
                 .returns(Types.TUPLE(Types.STRING, Types.INT, Types.INT, Types.INT, Types.INT));
 
         final DataSet<Tuple4<String, Integer, Integer, Integer>> boroughNumberOfLethalAccidentsPerWeek = boroughNumberOfAccidentsPerWeek
                 .filter(tuple -> !tuple.f0.isEmpty())
+                // group by boroguh and week (week identified by year and week number)
                 .groupBy(0, 1, 2)
-                .reduce(new Functions.DoubleSum())
-                .project(0, 1, 2, 4);
+                // count number of tuples
+                .reduce(new Functions.Tuple5Sum())
+                .project(0, 1, 2, 4); // return 4 because it is the number of lethal accidents
 
         boroughNumberOfLethalAccidentsPerWeek.print();
 
         final DataSet<Tuple5<String, Integer, Integer, Integer, Integer>> averageLethalAccidentsPerWeekPerBorough = boroughNumberOfLethalAccidentsPerWeek
                 .filter(tuple -> !tuple.f0.isEmpty())
+                // borough, year, week number, number of lethal accidents, 1
                 .map(tuple -> Tuple5.of(tuple.f0, tuple.f1, tuple.f2, tuple.f3, 1))
                 .returns(Types.TUPLE(Types.STRING, Types.INT, Types.INT, Types.INT, Types.INT)); // used later to count how many weeks we have for each borough
 
-        //averageLethalAccidentsPerWeekPerBorough.print();
+        averageLethalAccidentsPerWeekPerBorough.print();
 
         averageLethalAccidentsPerWeekPerBorough
                 .groupBy(0) // group by borough
-                .reduce(new Functions.DoubleSum()) // get the total number of rows and total number of lethal accidents.map(tuple -> {
+                .reduce(new Functions.Tuple5Sum()) // get the total number of rows (weeks) and total number of lethal accidents
                 .map(tuple -> {
-                    // tuple.f3 = total accidents in that borough that week
-                    // tuple.f4 = number of lethal accidents in that borough that week
+                    // tuple.f3 = total accidents in that borough
+                    // tuple.f4 = number of lethal accidents in that borough
                     float avg;
                     try {
                         avg = (float) tuple.f3 / tuple.f4; // lethal accidents over number of weeks for which we have data
@@ -116,7 +121,7 @@ public class ThirdQuery extends Query {
                 .map(tuple -> Tuple4.of(tuple.f0, tuple.f1, tuple.f2, 1))
                 .returns(Types.TUPLE(Types.STRING, Types.INT, Types.FLOAT, Types.INT))
                 .groupBy(0)
-                .reduce(new Functions.DoubleSumAverage())
+                .reduce(new Functions.Tuple4Sum())
                 .map(tuple -> {
                     float averageAccidentsPerWeekInYears = tuple.f2 / tuple.f3;
                     return Tuple2.of(tuple.f0, averageAccidentsPerWeekInYears);

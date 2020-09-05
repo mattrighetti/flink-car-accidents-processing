@@ -94,16 +94,22 @@ public class SecondQuery extends Query {
                 .union(contributingFactor5)
                 .map(tuple -> {
                     if (tuple.f0.isEmpty()) {
+                        // "no name", isLethal, 1
                         return Tuple3.of("No name", tuple.f1, tuple.f2);
                     }
-
+                    // contributing factor name, isLethal, 1
                     return Tuple3.of(tuple.f0, tuple.f1, tuple.f2);
                 })
                 .returns(Types.TUPLE(Types.STRING, Types.INT, Types.INT));
 
+        //System.out.println("ContributingFactorName, NumberLethalAccidents, NumberAccidents, Percentage");
+
         groupedContributingFactors
+                // group by contributing factor name
                 .groupBy(0)
-                .reduce(new Functions.DoubleFieldSum())
+                // number of lethal accidents and number of rows (number of accidents)
+                .reduce(new Functions.Tuple3Sum())
+                // return percentage of lethal over total number of accidents
                 .map(new Functions.LethalPercentage())
                 .print();
 
