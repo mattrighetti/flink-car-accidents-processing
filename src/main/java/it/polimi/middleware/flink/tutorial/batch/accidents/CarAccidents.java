@@ -4,7 +4,6 @@ import it.polimi.middleware.flink.tutorial.batch.accidents.queries.Query;
 import it.polimi.middleware.flink.tutorial.batch.accidents.queries.dataset.SecondQuery;
 import it.polimi.middleware.flink.tutorial.batch.accidents.queries.dataset.ThirdQuery;
 import it.polimi.middleware.flink.tutorial.batch.accidents.queries.dataset.ThirdQuery2;
-import it.polimi.middleware.flink.tutorial.batch.accidents.queries.sql.ThirdQuerySQL;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.utils.ParameterTool;
 
