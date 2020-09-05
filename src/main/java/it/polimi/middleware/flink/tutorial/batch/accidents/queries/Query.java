@@ -4,13 +4,15 @@ import org.apache.flink.api.java.ExecutionEnvironment;
 
 public abstract class Query {
 
-    public ExecutionEnvironment env;
-    public String data;
+    protected ExecutionEnvironment env;
+    protected String data;
+    protected String outputFile;
 
     // Abstract constructor
-    public Query(ExecutionEnvironment env, String data){
+    public Query(ExecutionEnvironment env, String data, String outputFile){
         this.env = env;
         this.data = data;
+        this.outputFile = outputFile;
     }
 
     // abstract method that implements the query

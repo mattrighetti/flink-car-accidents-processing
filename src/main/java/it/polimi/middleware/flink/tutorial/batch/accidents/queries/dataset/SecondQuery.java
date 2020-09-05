@@ -8,11 +8,12 @@ import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple9;
+import org.apache.flink.core.fs.FileSystem;
 
 public class SecondQuery extends Query {
 
-    public SecondQuery(ExecutionEnvironment env, String data) {
-        super(env, data);
+    public SecondQuery(ExecutionEnvironment env, String data, String outputFile) {
+        super(env, data, outputFile);
     }
 
 
@@ -111,7 +112,10 @@ public class SecondQuery extends Query {
                 .reduce(new Functions.Tuple3Sum())
                 // return percentage of lethal over total number of accidents
                 .map(new Functions.LethalPercentage())
-                .print();
+                .writeAsText(outputFile, FileSystem.WriteMode.OVERWRITE)
+                .setParallelism(1);
+
+        env.execute();
 
     }
 }

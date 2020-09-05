@@ -3,17 +3,22 @@ package it.polimi.middleware.flink.tutorial.batch.accidents.queries.dataset;
 import it.polimi.middleware.flink.tutorial.batch.accidents.queries.Query;
 import it.polimi.middleware.flink.tutorial.batch.accidents.utils.AccidentField;
 import it.polimi.middleware.flink.tutorial.batch.accidents.utils.Functions;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple5;
+import org.apache.flink.core.fs.FileSystem;
+import scala.Int;
 
+import javax.xml.crypto.Data;
 import java.util.Date;
 
 public class FirstQuery extends Query {
 
 
-    public FirstQuery(ExecutionEnvironment env, String data) {
-        super(env, data);
+    public FirstQuery(ExecutionEnvironment env, String data, String outputFile) {
+        super(env, data, outputFile);
     }
 
 
@@ -48,12 +53,17 @@ public class FirstQuery extends Query {
                 .filter(new Functions.LethalAccidents())
                 .map(new Functions.DateParser());
 
-        lethalAccidentsDates
-                .map(new Functions.DateToWeekNumber())
+        final DataSet<Tuple3<Integer, Integer, Integer>> lethalAccidentsPerWeek = lethalAccidentsDates
+                .map(new Functions.DateToWeekNumber()) // return year and week number
                 // group by year and week number
                 .groupBy(0, 1)
                 // count number of rows
-                .sum(2)
-                .print();
+                .sum(2);
+
+        lethalAccidentsPerWeek
+                .writeAsCsv(outputFile,"\n", ",")
+                .setParallelism(1);
+
+        env.execute();
     }
 }

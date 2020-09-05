@@ -88,4 +88,11 @@ public class Functions {
             return new Tuple3<>(year, numberOfWeek, 1);
         }
     }
+
+    public static class MaxYear implements ReduceFunction<Tuple5<String, Integer, Integer, Integer, Integer>> {
+        @Override
+        public Tuple5<String, Integer, Integer, Integer, Integer> reduce(Tuple5<String, Integer, Integer, Integer, Integer> t0, Tuple5<String, Integer, Integer, Integer, Integer> t1) throws Exception {
+            return Tuple5.of(t0.f0, Math.max(t0.f1, t1.f1), t0.f2, t0.f3, t0.f4);
+        }
+    }
 }

@@ -14,9 +14,9 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 
-public class ThirdQuery extends Query {
+public class ThirdQuery2 extends Query {
 
-    public ThirdQuery(ExecutionEnvironment env, String data, String outputFile) {
+    public ThirdQuery2(ExecutionEnvironment env, String data, String outputFile) {
         super(env, data, outputFile);
     }
 
@@ -68,32 +68,52 @@ public class ThirdQuery extends Query {
                 })
                 .returns(Types.TUPLE(Types.STRING, Types.INT, Types.INT, Types.INT, Types.INT));
 
+        // Average of number of lethal accidents per week (of the same year)
+        // grouped by BOROUGH, YEAR
         //
-        //  Compute for each (borough, year, week)
-        //  - the total number of accidents
-        //  - the avg/ratio of lethal accidents over total accidents
-        //
-        final DataSet<Tuple5<String, Integer, Integer, Integer, Integer>> boroughNumberOfLethalAccidentsPerWeek = boroughNumberOfAccidentsWithWeekNumber
+        // input  : borough, year, week number, 1, isLethal
+        // output : borough, year, avg lethal accidents per week (that year)
+        final DataSet<Tuple3<String, Integer, Float>> averageLethalPerWeekGroupedByYear = boroughNumberOfAccidentsWithWeekNumber
                 .filter(tuple -> !tuple.f0.isEmpty())
-                // group by boroguh, year and week number (week identified by year and week number)
-                .groupBy(0, 1, 2)
-                .reduce(new Functions.Tuple5Sum())
-                // borough, yaer, week, num accidents, num lethal accidents (group by borough and week)
-                // => 1 row for each triplet (borough, year, week)
-                .returns(Types.TUPLE(Types.STRING, Types.INT, Types.INT, Types.INT, Types.INT));
-
-        final DataSet<Tuple5<String, Integer, Integer, Integer, Float>> boroughNumberOfLethalAccidentsAveragePerWeek = boroughNumberOfLethalAccidentsPerWeek
+                // group by borough, year
+                .groupBy(0, 1)
+                // num lethal accidents per borough per year
+                .sum(4)
                 .map(tuple -> {
-                    // borough, year, week, number of accidents, avg (percentage/ratio) lethal accidents
-                    return Tuple5.of(tuple.f0, tuple.f1, tuple.f2, tuple.f3, (float)tuple.f4/tuple.f3);
+                    float accidentsPerWeekAverage = (float) (((float) tuple.f4) / 52.0);
+                    return Tuple3.of(tuple.f0, tuple.f1, accidentsPerWeekAverage);
                 })
-                .returns(Types.TUPLE(Types.STRING, Types.INT, Types.INT, Types.INT, Types.FLOAT));
+                // borough, year, avg lethal accidents per week (that year)
+                .returns(Types.TUPLE(Types.STRING, Types.INT, Types.FLOAT));
 
-        boroughNumberOfLethalAccidentsAveragePerWeek
+        //averageLethalPerWeekGroupedByYear.print();
+
+        // Average of number of lethal accidents per week
+        // grouped by BOROUGH
+        //
+        // input  : borough, year, avg lethal accidents per week (that year)
+        // output : borough, average lethal accidents per week
+        final DataSet<Tuple2<String, Float>> averageLethalPerWeekTotal = averageLethalPerWeekGroupedByYear
+                .map(tuple -> Tuple4.of(tuple.f0, tuple.f1, tuple.f2, 1))
+                .returns(Types.TUPLE(Types.STRING, Types.INT, Types.FLOAT, Types.INT))
+                // group by borough
+                .groupBy(0)
+                // sum of average lethal accidents per week per each year
+                // and total number of years (for that borough)
+                .reduce(new Functions.Tuple4Sum())
+                .map(tuple -> {
+                    float averageAccidentsPerWeekInYears = tuple.f2 / tuple.f3;
+                    return Tuple2.of(tuple.f0, averageAccidentsPerWeekInYears);
+                })
+                // borough, average lethal accidents per week
+                .returns(Types.TUPLE(Types.STRING,Types.FLOAT));
+
+        averageLethalPerWeekTotal
                 .writeAsCsv(outputFile,"\n", ",")
                 .setParallelism(1);
 
         env.execute();
+
     }
 
 }
