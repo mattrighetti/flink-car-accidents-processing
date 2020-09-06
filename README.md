@@ -56,4 +56,4 @@ By executing these commands a **target** folder will be generated in the project
 ## How to run this program
 
 1. Fire up Flink
-2. Run `flink run <jar> --nypd_data_file <path_to_NYPD_csv> --query <query-number-to-run>`
+2. Run `flink run <jar> --nypd_data_file <path_to_NYPD_csv> --query <query-number-to-run> --output <path_to_output_file>` e.g. `--nypd_data_file /opt/flink/NYPD_Motor_Vehicle_Collisions.csv --query 1 -- output /opt/flink/output1
