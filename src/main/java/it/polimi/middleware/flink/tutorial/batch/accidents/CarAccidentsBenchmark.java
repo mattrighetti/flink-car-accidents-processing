@@ -5,13 +5,15 @@ import it.polimi.middleware.flink.tutorial.batch.accidents.queries.benchmark.Fir
 import it.polimi.middleware.flink.tutorial.batch.accidents.queries.benchmark.FirstQueryWithComputation;
 import it.polimi.middleware.flink.tutorial.batch.accidents.queries.benchmark.SecondQueryLoadData;
 import it.polimi.middleware.flink.tutorial.batch.accidents.queries.benchmark.SecondQueryWithComputation;
-import it.polimi.middleware.flink.tutorial.batch.accidents.queries.dataset.*;
+import it.polimi.middleware.flink.tutorial.batch.accidents.queries.dataset.FirstQuery;
+import it.polimi.middleware.flink.tutorial.batch.accidents.queries.dataset.SecondQuery;
+import it.polimi.middleware.flink.tutorial.batch.accidents.queries.dataset.ThirdQuery;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.utils.ParameterTool;
 
 
-public class CarAccidents {
+public class CarAccidentsBenchmark {
 
     private static int queryNumber;
     private static String data;
@@ -45,13 +47,21 @@ public class CarAccidents {
     private static Query getQuery(int queryNumber) throws Exception {
         switch (queryNumber) {
             case 1:
-                return new FirstQuery(env, data, outputFile);
+                return new FirstQueryLoadData(env, data, outputFile);
             case 2:
-                return new SecondQuery(env, data, outputFile);
+                return new FirstQueryWithComputation(env, data, outputFile);
             case 3:
-                return new ThirdQuery(env, data, outputFile);
+                return new SecondQueryLoadData(env, data, outputFile);
             case 4:
-                return new ThirdQuery2(env, data, outputFile);
+                return new SecondQueryWithComputation(env, data, outputFile);
+            /*case 8:
+                return new ThirdQueryLoadData(env, data, outputFile);
+            case 9:
+                return new ThirdQueryWithComputation(env, data, outputFile);
+            case 11:
+                return new ThirdQuery2LoadData(env, data, outputFile);
+            case 12:
+                return new ThirdQuery2WithComputation(env, data, outputFile);*/
             default:
                 throw new Exception("You have to enter a valid --query param (1, 2, 3, 4)");
         }

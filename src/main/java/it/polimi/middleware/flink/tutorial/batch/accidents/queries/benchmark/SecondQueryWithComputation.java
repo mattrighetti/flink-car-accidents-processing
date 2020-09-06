@@ -1,4 +1,4 @@
-package it.polimi.middleware.flink.tutorial.batch.accidents.queries.dataset;
+package it.polimi.middleware.flink.tutorial.batch.accidents.queries.benchmark;
 
 import it.polimi.middleware.flink.tutorial.batch.accidents.queries.Query;
 import it.polimi.middleware.flink.tutorial.batch.accidents.utils.AccidentField;
@@ -11,9 +11,9 @@ import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple9;
 import org.apache.flink.core.fs.FileSystem;
 
-public class SecondQuery extends Query {
+public class SecondQueryWithComputation extends Query {
 
-    public SecondQuery(ExecutionEnvironment env, String data, String outputFile) {
+    public SecondQueryWithComputation(ExecutionEnvironment env, String data, String outputFile) {
         super(env, data, outputFile);
     }
 
@@ -113,8 +113,7 @@ public class SecondQuery extends Query {
                 .reduce(new Functions.Tuple3Sum())
                 // return percentage of lethal over total number of accidents
                 .map(new Functions.LethalPercentage())
-                .writeAsCsv(outputFile, "\n", ",", FileSystem.WriteMode.OVERWRITE)
-                .setParallelism(1);
+                .first(1).print();
 
         env.execute();
 

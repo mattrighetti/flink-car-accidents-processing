@@ -1,11 +1,10 @@
-package it.polimi.middleware.flink.tutorial.batch.accidents.queries.dataset;
+package it.polimi.middleware.flink.tutorial.batch.accidents.queries.benchmark;
 
 import it.polimi.middleware.flink.tutorial.batch.accidents.queries.Query;
 import it.polimi.middleware.flink.tutorial.batch.accidents.utils.AccidentField;
 import it.polimi.middleware.flink.tutorial.batch.accidents.utils.Functions;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.accumulators.IntCounter;
-import org.apache.flink.api.common.functions.AbstractRichFunction;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.tuple.Tuple3;
@@ -14,11 +13,11 @@ import org.apache.flink.core.fs.FileSystem;
 
 import java.util.Date;
 
-public class FirstQuery extends Query {
+public class FirstQueryLoadData extends Query {
 
     private IntCounter numLines = new IntCounter();
 
-    public FirstQuery(ExecutionEnvironment env, String data, String outputFile) {
+    public FirstQueryLoadData(ExecutionEnvironment env, String data, String outputFile) {
         super(env, data, outputFile);
     }
 
@@ -51,27 +50,7 @@ public class FirstQuery extends Query {
                         Integer.class
                 );
 
-        //
-
-        // Lethal accidents
-        final DataSet<Date> lethalAccidentsDates = lethalAccidentsData
-                .filter(new Functions.LethalAccidents())
-                .map(new Functions.DateParser());
-
-        final DataSet<Tuple3<Integer, Integer, Integer>> lethalAccidentsPerWeek = lethalAccidentsDates
-                .map(new Functions.DateToWeekNumber()) // return year and week number
-                // group by year and week number
-                .groupBy(0, 1)
-                // count number of rows
-                .sum(2);
-
-        //
-
-        lethalAccidentsPerWeek
-                .writeAsCsv(outputFile,"\n", ",", FileSystem.WriteMode.OVERWRITE)
-                .setParallelism(1);
-
-        //
+        lethalAccidentsData.first(1).print();
 
         return env.execute();
     }

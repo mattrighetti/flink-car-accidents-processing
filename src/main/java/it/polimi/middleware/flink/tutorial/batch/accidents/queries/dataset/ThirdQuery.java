@@ -3,10 +3,12 @@ package it.polimi.middleware.flink.tutorial.batch.accidents.queries.dataset;
 import it.polimi.middleware.flink.tutorial.batch.accidents.queries.Query;
 import it.polimi.middleware.flink.tutorial.batch.accidents.utils.AccidentField;
 import it.polimi.middleware.flink.tutorial.batch.accidents.utils.Functions;
+import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.tuple.*;
+import org.apache.flink.core.fs.FileSystem;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -21,7 +23,7 @@ public class ThirdQuery extends Query {
     }
 
     @Override
-    public void execute() throws Exception {
+    public JobExecutionResult execute() throws Exception {
 
         final String thirdQueryFields = AccidentField.getFields(
                 AccidentField.DATE,
@@ -90,10 +92,11 @@ public class ThirdQuery extends Query {
                 .returns(Types.TUPLE(Types.STRING, Types.INT, Types.INT, Types.INT, Types.FLOAT));
 
         boroughNumberOfLethalAccidentsAveragePerWeek
-                .writeAsCsv(outputFile,"\n", ",")
+                .writeAsCsv(outputFile, "\n", ",", FileSystem.WriteMode.OVERWRITE)
                 .setParallelism(1);
 
         env.execute();
+        return null;
     }
 
 }

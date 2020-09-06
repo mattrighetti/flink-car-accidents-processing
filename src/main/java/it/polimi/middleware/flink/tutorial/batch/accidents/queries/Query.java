@@ -1,5 +1,6 @@
 package it.polimi.middleware.flink.tutorial.batch.accidents.queries;
 
+import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.java.ExecutionEnvironment;
 
 public abstract class Query {
@@ -16,6 +17,6 @@ public abstract class Query {
     }
 
     // abstract method that implements the query
-    public abstract void execute() throws Exception;
+    public abstract JobExecutionResult execute() throws Exception;
 
 }
