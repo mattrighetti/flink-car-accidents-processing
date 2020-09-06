@@ -8,6 +8,8 @@ import it.polimi.middleware.flink.tutorial.batch.accidents.queries.dataset.Third
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.utils.ParameterTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class CarAccidentsBenchmark {
@@ -30,8 +32,8 @@ public class CarAccidentsBenchmark {
             query = getQuery(queryNumber);
             executionResult = query.execute();
 
-            System.out.println("Exec time: " + executionResult.getNetRuntime());
-            System.out.println(executionResult.getAllAccumulatorResults());
+            Logger LOG = LoggerFactory.getLogger(CarAccidentsBenchmark.class);
+            LOG.info("Exec time: " + executionResult.getNetRuntime());
 
         } catch (Exception e) {
             //e.printStackTrace();

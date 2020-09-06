@@ -50,7 +50,7 @@ public class FirstQueryLoadData extends Query {
                         Integer.class
                 );
 
-        lethalAccidentsData.first(1).print();
+        lethalAccidentsData.first(1).writeAsText(outputFile, FileSystem.WriteMode.OVERWRITE);
 
         return env.execute();
     }
