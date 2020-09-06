@@ -1,10 +1,7 @@
 package it.polimi.middleware.flink.tutorial.batch.accidents;
 
 import it.polimi.middleware.flink.tutorial.batch.accidents.queries.Query;
-import it.polimi.middleware.flink.tutorial.batch.accidents.queries.benchmark.FirstQueryLoadData;
-import it.polimi.middleware.flink.tutorial.batch.accidents.queries.benchmark.FirstQueryWithComputation;
-import it.polimi.middleware.flink.tutorial.batch.accidents.queries.benchmark.SecondQueryLoadData;
-import it.polimi.middleware.flink.tutorial.batch.accidents.queries.benchmark.SecondQueryWithComputation;
+import it.polimi.middleware.flink.tutorial.batch.accidents.queries.benchmark.*;
 import it.polimi.middleware.flink.tutorial.batch.accidents.queries.dataset.FirstQuery;
 import it.polimi.middleware.flink.tutorial.batch.accidents.queries.dataset.SecondQuery;
 import it.polimi.middleware.flink.tutorial.batch.accidents.queries.dataset.ThirdQuery;
@@ -54,14 +51,12 @@ public class CarAccidentsBenchmark {
                 return new SecondQueryLoadData(env, data, outputFile);
             case 4:
                 return new SecondQueryWithComputation(env, data, outputFile);
-            /*case 8:
+            case 5:
                 return new ThirdQueryLoadData(env, data, outputFile);
-            case 9:
+            case 6:
                 return new ThirdQueryWithComputation(env, data, outputFile);
-            case 11:
-                return new ThirdQuery2LoadData(env, data, outputFile);
-            case 12:
-                return new ThirdQuery2WithComputation(env, data, outputFile);*/
+            case 7:
+                return new ThirdQuery2WithComputation(env, data, outputFile);
             default:
                 throw new Exception("You have to enter a valid --query param (1, 2, 3, 4)");
         }
