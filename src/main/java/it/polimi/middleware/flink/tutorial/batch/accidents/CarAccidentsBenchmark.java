@@ -58,7 +58,7 @@ public class CarAccidentsBenchmark {
             case 7:
                 return new ThirdQuery2WithComputation(env, data, outputFile);
             default:
-                throw new Exception("You have to enter a valid --query param (1, 2, 3, 4)");
+                throw new Exception("You have to enter a valid --query param benchmark (1, 2, 3, 4, 5, 6, 7)");
         }
     }
 }
