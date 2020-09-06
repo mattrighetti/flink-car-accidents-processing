@@ -31,8 +31,8 @@ public class CarAccidents {
             query = getQuery(queryNumber);
             executionResult = query.execute();
 
-            System.out.println("Exec time: " + executionResult.getNetRuntime());
-            System.out.println(executionResult.getAllAccumulatorResults());
+            //System.out.println("Exec time: " + executionResult.getNetRuntime());
+            //System.out.println(executionResult.getAllAccumulatorResults());
 
         } catch (Exception e) {
             //e.printStackTrace();
